@@ -5,10 +5,12 @@ export type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
   Register: undefined;
+  VerifyOtp: { email: string };
   Dashboard: undefined;
   CreateStorefront: undefined;
   ActivateQR: { storefrontId: number; slug: string; name: string };
   QR: { slug: string; name: string };
+  Database: { slug: string; name: string } | undefined;
 };
 
 export type NavigationProp<T extends keyof RootStackParamList> =

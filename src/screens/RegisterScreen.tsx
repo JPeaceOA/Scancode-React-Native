@@ -10,8 +10,9 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import { CommonActions } from '@react-navigation/native';
-import { register, saveToken } from '../api';
+import { register } from '../api';
+// import { CommonActions } from '@react-navigation/native';
+// import { register, saveToken } from '../api';
 import type { NavigationProp } from '../types';
 
 interface Props {
@@ -33,12 +34,15 @@ export default function RegisterScreen({ navigation }: Props) {
     setError(null);
     setLoading(true);
     try {
-      const res = await register(username.trim(), email.trim(), password);
-      await saveToken(res.token);
-      // Reset the entire stack so back button cannot return to Register/Login
-      navigation.dispatch(
-        CommonActions.reset({ index: 0, routes: [{ name: 'Dashboard' }] }),
-      );
+      // const res = await register(username.trim(), email.trim(), password);
+      // await saveToken(res.token);
+      // // Reset the entire stack so back button cannot return to Register/Login
+      // navigation.dispatch(
+      //   CommonActions.reset({ index: 0, routes: [{ name: 'Dashboard' }] }),
+      // );
+      await register(username.trim(), email.trim(), password);
+      // Server sends an OTP to the email — navigate to the verify screen
+      navigation.navigate('VerifyOtp', { email: email.trim().toLowerCase() });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
     } finally {

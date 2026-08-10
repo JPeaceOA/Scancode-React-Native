@@ -10,7 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import { useFocusEffect, CommonActions } from '@react-navigation/native';
-import { getMyStorefronts, deleteToken, type StorefrontResponse } from '../api';
+import { getMyStorefronts, deleteToken, getMe, type StorefrontResponse } from '../api';
 import type { NavigationProp } from '../types';
 
 interface Props {
@@ -22,6 +22,7 @@ export default function DashboardScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const load = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -31,17 +32,37 @@ export default function DashboardScreen({ navigation }: Props) {
       const data = await getMyStorefronts();
       setStorefronts(data);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to load storefronts.');
+      const msg = err instanceof Error ? err.message : 'Failed to load storefronts.';
+      if (msg.includes('401') || msg.toLowerCase().includes('unauthorized')) {
+        await deleteToken();
+        navigation.dispatch(
+          CommonActions.reset({ index: 0, routes: [{ name: 'Login' }] }),
+        );
+        return;
+      }
+      setError(msg);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [navigation]);
 
   useFocusEffect(
     useCallback(() => {
       load();
-    }, [load]),
+      // Check admin role once per focus
+      getMe().then((me) => {
+        setIsAdmin(me.roles.some((r) => r === 'ROLE_ADMIN' || r === 'ADMIN'));
+      }).catch(async (err: unknown) => {
+        const msg = err instanceof Error ? err.message : '';
+        if (msg.includes('401') || msg.toLowerCase().includes('unauthorized')) {
+          await deleteToken();
+          navigation.dispatch(
+            CommonActions.reset({ index: 0, routes: [{ name: 'Login' }] }),
+          );
+        }
+      });
+    }, [load, navigation]),
   );
 
   async function handleLogout() {
@@ -113,9 +134,19 @@ export default function DashboardScreen({ navigation }: Props) {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>My Storefronts</Text>
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
-          <Text style={styles.logoutText}>Sign Out</Text>
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          {isAdmin && (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Database')}
+              style={styles.dbBtn}
+            >
+              <Text style={styles.dbBtnText}>⬡ DB</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
+            <Text style={styles.logoutText}>Sign Out</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {loading ? (
@@ -187,7 +218,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   headerTitle: { fontSize: 20, fontWeight: '700', color: '#111827' },
+  dbBtn: {
+    backgroundColor: '#1E1B4B',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  dbBtnText: { color: '#A78BFA', fontWeight: '700', fontSize: 13 },
   logoutBtn: { paddingHorizontal: 12, paddingVertical: 6 },
   logoutText: { color: '#EF4444', fontWeight: '600', fontSize: 14 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },

@@ -1,6 +1,8 @@
 import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
-export const API_BASE = 'http://localhost:8082';
+export const API_BASE = 'http://192.168.1.155:8082';
 const TOKEN_KEY = 'scancode_token';
 
 // ─── Token helpers ───────────────────────────────────────────────────────────
@@ -18,6 +20,16 @@ export async function deleteToken(): Promise<void> {
 }
 
 // ─── HTTP helper ─────────────────────────────────────────────────────────────
+
+async function saveSecureData(key: string, value: string) {
+  if (Platform.OS === 'web') {
+    // Safe browser fallback
+    await AsyncStorage.setItem(key, value);
+  } else {
+    // Safe mobile execution
+    await SecureStore.setItemAsync(key, value);
+  }
+}
 
 async function request<T>(
   method: string,
@@ -107,9 +119,21 @@ export function login(email: string, password: string, rememberMe = false) {
   return request<AuthResponse>('POST', '/api/auth/login', { email, password, rememberMe }, false);
 }
 
+export interface RegisterResponse {
+  message: string;
+} //uncertain wheter or njot it should  be here
+
 export function register(username: string, email: string, password: string) {
-  return request<AuthResponse>('POST', '/api/auth/register', { username, email, password }, false);
+  return request<RegisterResponse>('POST', '/auth/register', { username, email, password }, false);
 }
+
+export function verifyOtp(email: string, otp: string) {
+  return request<{ message: string }>('POST', '/auth/verify-otp', { email, otp }, false);
+}
+
+export function resendOtp(email: string) {
+  return request<{ message: string }>('POST', '/auth/resend-otp', { email }, false);
+} //115 - 124 Uncertain
 
 export function getMe() {
   return request<MeResponse>('GET', '/api/auth/me');
@@ -147,4 +171,25 @@ export function initializePayment(purpose: PaymentPurpose, slug: string) {
 
 export function verifyPayment(reference: string) {
   return request<PaymentVerifyResponse>('POST', '/api/payments/verify', { reference });
+}
+
+// ─── H2 Database Admin ────────────────────────────────────────────────────────
+
+export interface QueryResult {
+  columns: string[];
+  rows: (string | number | boolean | null)[][];
+  error: string | null;
+  rowCount: number;
+}
+
+export function listDbTables(): Promise<string[]> {
+  return request<string[]>('GET', '/api/admin/db/tables');
+}
+
+export function getTableRows(table: string, limit = 200): Promise<QueryResult> {
+  return request<QueryResult>('GET', `/api/admin/db/tables/${table}?limit=${limit}`);
+}
+
+export function executeQuery(sql: string): Promise<QueryResult> {
+  return request<QueryResult>('POST', '/api/admin/db/query', { sql });
 }

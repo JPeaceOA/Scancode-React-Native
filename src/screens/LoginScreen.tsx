@@ -57,7 +57,7 @@ export default function LoginScreen({ navigation }: Props) {
             </View>
           )}
 
-          <View style={styles.form}>
+          <View accessibilityRole={"form" as any} style={styles.form}>
             <Text style={styles.label}>Email</Text>
             <TextInput
               style={styles.input}
@@ -77,6 +77,8 @@ export default function LoginScreen({ navigation }: Props) {
               value={password}
               onChangeText={setPassword}
               secureTextEntry
+              autoComplete="current-password"
+              textContentType="password"
               placeholder="••••••••"
               placeholderTextColor="#9CA3AF"
               editable={!loading}

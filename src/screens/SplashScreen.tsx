@@ -8,9 +8,11 @@ interface Props {
 }
 
 export default function SplashScreen({ navigation }: Props) {
+  // For testing
+  //   navigation.replace('QR', { slug: "test", name: "QR Test" });
+  // }, [navigation]); 
   useEffect(() => {
     let cancelled = false;
-
     async function checkAuth() {
       try {
         const token = await getToken();

@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-
+import StorefrontScreen from './src/screens/StorefrontScreen'
 import type { RootStackParamList } from './src/types';
 import SplashScreen from './src/screens/SplashScreen';
 import LoginScreen from './src/screens/LoginScreen';
@@ -12,6 +12,8 @@ import DashboardScreen from './src/screens/DashboardScreen';
 import CreateStorefrontScreen from './src/screens/CreateStorefrontScreen';
 import ActivateQRScreen from './src/screens/ActivateQRScreen';
 import QRScreen from './src/screens/QRScreen';
+import DatabaseScreen from './src/screens/DatabaseScreen';
+import VerifyOtpScreen from './src/screens/VerifyOtpScreen'; // 15 & 16 Uncertain
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -45,6 +47,11 @@ export default function App() {
             options={{ headerShown: false }}
           />
           <Stack.Screen
+            name="VerifyOtp"
+            component={VerifyOtpScreen}
+            options={{ headerShown: false }}
+          />{/* newly added, wasnt there before, unsure of wheter thia was a good idea */}
+          <Stack.Screen
             name="Dashboard"
             component={DashboardScreen}
             options={{ headerShown: false }}
@@ -54,11 +61,16 @@ export default function App() {
             component={CreateStorefrontScreen}
             options={{ title: 'New Storefront', headerBackTitle: 'Back' }}
           />
+          {/* <Stack.Screen
+           name="Storefront"
+           component={StorefrontScreen}
+            options={{ title: 'Storefront', headerBackTitle: 'Back' }}
+          /> */}
           <Stack.Screen
             name="ActivateQR"
             component={ActivateQRScreen}
             options={({ route }) => ({
-              title: route.params.name,
+              title: route.params?.name || 'Testing QR Screen',
               headerBackTitle: 'Back',
             })}
           />
@@ -66,10 +78,19 @@ export default function App() {
             name="QR"
             component={QRScreen}
             options={({ route }) => ({
-              title: `${route.params.name} — QR`,
+              title: `${route.params?.name} — QR`,
               headerBackTitle: 'Back',
             })}
           />
+          {/* <Stack.Screen
+            name="Database"
+            component={DatabaseScreen}
+            initialParams={{ slug: "test", name: "Database Test" }} //temporarty
+            options={({ route }) => ({
+              title: route.params?.name || 'Database Test',
+              headerBackTitle: 'Back'
+            })}
+          /> */}
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
