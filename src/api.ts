@@ -103,6 +103,57 @@ export interface StorefrontResponse {
   updatedAt: string;
 }
 
+export interface ProductResponse {
+  id: number;
+  storefrontId: number;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  isDelisted: boolean;
+  mediaUrls: string[];
+  category: string;
+  isPopular: boolean;
+  viewCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StoreConfigResponse {
+  id: number | null;
+  storefrontId: number;
+  vatRate: number;
+  deliveryFee: number;
+  waiterPhone?: string | null;
+  callEntities?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface TableVerifyResponse {
+  valid: boolean;
+  label: string | null;
+  tableCode: string | null;
+}
+
+export interface OrderResponse {
+  id: number;
+  storefrontId: number;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  orderItems: string;
+  subtotal: number;
+  vat: number;
+  delivery: number;
+  total: number;
+  tableCode: string | null;
+  tableLabel: string | null;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface PaymentInitResponse {
   authorizationUrl: string;
   reference: string;
@@ -121,7 +172,7 @@ export function login(email: string, password: string, rememberMe = false) {
 
 export interface RegisterResponse {
   message: string;
-} //uncertain wheter or njot it should  be here
+}
 
 export function register(username: string, email: string, password: string) {
   return request<RegisterResponse>('POST', '/auth/register', { username, email, password }, false);
@@ -133,7 +184,11 @@ export function verifyOtp(email: string, otp: string) {
 
 export function resendOtp(email: string) {
   return request<{ message: string }>('POST', '/auth/resend-otp', { email }, false);
-} //115 - 124 Uncertain
+}
+
+export function forgotPassword(email: string) {
+  return request<{ message: string }>('POST', '/auth/forgot-password', { email }, false);
+}
 
 export function getMe() {
   return request<MeResponse>('GET', '/api/auth/me');
@@ -158,6 +213,86 @@ export function getMyStorefronts() {
   return request<StorefrontResponse[]>('GET', '/api/business/storefronts/my');
 }
 
+export function getStorefrontBySlug(slug: string) {
+  return request<StorefrontResponse>('GET', `/api/business/storefronts/${encodeURIComponent(slug)}`, undefined, false);
+}
+
+export function getProducts(storefrontId: number) {
+  return request<ProductResponse[]>('GET', `/api/storefronts/${storefrontId}/products`, undefined, false);
+}
+
+export function getPopularProducts(storefrontId: number) {
+  return request<ProductResponse[]>('GET', `/api/storefronts/${storefrontId}/products/popular`, undefined, false);
+}
+
+export function trackProductView(storefrontId: number, productId: number) {
+  return request<void>('POST', `/api/storefronts/${storefrontId}/products/${productId}/view`, undefined, false);
+}
+
+export function getStoreConfig(storefrontId: number) {
+  return request<StoreConfigResponse>('GET', `/api/storefronts/${storefrontId}/config`, undefined, false);
+}
+
+export function verifyStoreTable(storefrontId: number, code: string) {
+  return request<TableVerifyResponse>(
+    'GET',
+    `/api/storefronts/${storefrontId}/tables/verify?code=${encodeURIComponent(code)}`,
+    undefined,
+    false,
+  );
+}
+
+export interface CreateOrderBody {
+  customerName?: string;
+  customerPhone?: string;
+  customerEmail?: string;
+  items: { id: string; name: string; qty: number; price: number }[];
+  subtotal: number;
+  vat: number;
+  delivery: number;
+  total: number;
+  tableCode?: string;
+}
+
+export function createOrder(storefrontId: number, body: CreateOrderBody) {
+  return request<OrderResponse>('POST', `/api/storefronts/${storefrontId}/orders`, body, false);
+}
+
+export interface WaiterCallBody {
+  tableNumber: string;
+  callTarget: string;
+  message?: string;
+}
+
+export function createWaiterCall(storefrontId: number, body: WaiterCallBody) {
+  return request<{ id: number }>('POST', `/api/storefronts/${storefrontId}/waiter-calls`, body, false);
+}
+
+export type StoreRequestType = 'SHOUTOUT' | 'SONG' | 'KARAOKE';
+
+export function createStoreRequest(storefrontId: number, body: {
+  requestType: StoreRequestType;
+  details: string;
+  amount: number;
+}) {
+  return request<{ id: number }>('POST', `/api/storefronts/${storefrontId}/requests`, body, false);
+}
+
+export function createStoreTip(storefrontId: number, body: {
+  recipient: string;
+  customRecipient?: string | null;
+  amount: number;
+}) {
+  return request<{ id: number }>('POST', `/api/storefronts/${storefrontId}/tips`, body, false);
+}
+
+export function createStoreFeedback(storefrontId: number, body: {
+  rating: number;
+  description: string;
+}) {
+  return request<{ id: number }>('POST', `/api/storefronts/${storefrontId}/feedbacks`, body, false);
+}
+
 // ─── Payments ────────────────────────────────────────────────────────────────
 
 export type PaymentPurpose = 'STOREFRONT_CREATION' | 'EVENT_CREATION';
@@ -173,23 +308,4 @@ export function verifyPayment(reference: string) {
   return request<PaymentVerifyResponse>('POST', '/api/payments/verify', { reference });
 }
 
-// ─── H2 Database Admin ────────────────────────────────────────────────────────
 
-export interface QueryResult {
-  columns: string[];
-  rows: (string | number | boolean | null)[][];
-  error: string | null;
-  rowCount: number;
-}
-
-export function listDbTables(): Promise<string[]> {
-  return request<string[]>('GET', '/api/admin/db/tables');
-}
-
-export function getTableRows(table: string, limit = 200): Promise<QueryResult> {
-  return request<QueryResult>('GET', `/api/admin/db/tables/${table}?limit=${limit}`);
-}
-
-export function executeQuery(sql: string): Promise<QueryResult> {
-  return request<QueryResult>('POST', '/api/admin/db/query', { sql });
-}

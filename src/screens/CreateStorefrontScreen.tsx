@@ -69,7 +69,7 @@ export default function CreateStorefrontScreen({ navigation }: Props) {
     const ext = /\.([^.]+)$/.exec(filename)?.[1] ?? 'jpg';
     const type = `image/${ext === 'jpg' ? 'jpeg' : ext}`;
 
-    const response = await FileSystem.uploadAsync(`${API_BASE}/upload`, uri, {
+    const response = await FileSystem.uploadAsync(`${API_BASE}/api/media/upload`, uri, {
       fieldName: 'file',
       httpMethod: 'POST',
       uploadType: FileSystem.FileSystemUploadType.MULTIPART,
@@ -97,7 +97,7 @@ export default function CreateStorefrontScreen({ navigation }: Props) {
     //   // file);
     // });
 
-    // const res = await fetch(`${API_BASE}/upload`, {
+    // const res = await fetch(`${API_BASE}/api/media/upload`, {
     //   method: 'POST',
     //   headers: token ? { Authorization: `Bearer ${token}` } : {},
     //   body: formData,
@@ -135,7 +135,7 @@ export default function CreateStorefrontScreen({ navigation }: Props) {
   //   }
 
   //   const token = await getToken();
-  //   const res = await fetch(`${API_BASE}/upload`, {
+  //   const res = await fetch(`${API_BASE}/api/media/upload`, {
   //     method: 'POST',
   //     headers: {
   //       ...(token ? { Authorization: `Bearer ${token}` } : {}),

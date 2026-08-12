@@ -4,13 +4,15 @@ import type { RouteProp } from '@react-navigation/native';
 export type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
+  ForgotPassword: undefined;
   Register: undefined;
   VerifyOtp: { email: string };
   Dashboard: undefined;
   CreateStorefront: undefined;
+  Storefront: { slug: string; name?: string; tableCode?: string };
+  Checkout: { slug: string; storefrontId: number; cart: any[]; table?: string };
   ActivateQR: { storefrontId: number; slug: string; name: string };
   QR: { slug: string; name: string };
-  Database: { slug: string; name: string } | undefined;
 };
 
 export type NavigationProp<T extends keyof RootStackParamList> =
