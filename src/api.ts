@@ -308,4 +308,33 @@ export function verifyPayment(reference: string) {
   return request<PaymentVerifyResponse>('POST', '/api/payments/verify', { reference });
 }
 
+export interface UpdateStoreConfigBody {
+  vatRate?: number;
+  deliveryFee?: number;
+  deliveryEnabled?: boolean;
+}
+
+export function updateStoreConfig(storefrontId: number, body: UpdateStoreConfigBody) {
+  return request<StoreConfigResponse>('PUT', `/api/storefronts/${storefrontId}/config`, body);
+}
+
+export interface BusinessProfileData {
+  name?: string;
+  bankName?: string;
+  accountName?: string;
+  accountNumber?: string;
+}
+
+export async function saveBusinessProfileData(data: BusinessProfileData): Promise<void> {
+  const existing = await AsyncStorage.getItem('global_business_profile');
+  const parsed = existing ? JSON.parse(existing) : {};
+  const updated = { ...parsed, ...data };
+  await AsyncStorage.setItem('global_business_profile', JSON.stringify(updated));
+}
+
+export async function getBusinessProfileData(): Promise<BusinessProfileData> {
+  const existing = await AsyncStorage.getItem('global_business_profile');
+  return existing ? JSON.parse(existing) : {};
+}
+
 

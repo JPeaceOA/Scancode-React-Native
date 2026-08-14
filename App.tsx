@@ -15,6 +15,8 @@ import StorefrontScreen from './src/screens/StorefrontScreen';
 import CheckoutScreen from './src/screens/CheckoutScreen';
 import ActivateQRScreen from './src/screens/ActivateQRScreen';
 import QRScreen from './src/screens/QRScreen';
+import MerchantProfileBankScreen from './src/screens/MerchantProfileBankScreen';
+import StoreChargesConfigScreen from './src/screens/StoreChargesConfigScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -23,80 +25,95 @@ const newStorefrontOptions: NativeStackNavigationOptions = { title: 'New Storefr
 const checkoutOptions: NativeStackNavigationOptions = { title: 'Checkout', headerBackTitle: 'Back' };
 
 export default function App() {
-  return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <StatusBar style="dark" />
-        <Stack.Navigator
-          initialRouteName="Storefront"
-          screenOptions={{
-            headerStyle: { backgroundColor: '#ffffff' },
-            headerTintColor: '#6C63FF',
-            headerTitleStyle: { fontWeight: '700' },
-            contentStyle: { backgroundColor: '#F3F4F6' },
-          }}
-        >
-          <Stack.Screen
-            name="Storefront"
-            component={StorefrontScreen}
-            options={({ route }) => ({
-              title: route.params?.name || 'Storefront',
-              headerBackTitle: 'Back',
-            })}
-          />
-          <Stack.Screen
-            name="Checkout"
-            component={CheckoutScreen}
-            options={checkoutOptions}
-          />
-          <Stack.Screen
-            name="Splash"
-            component={SplashScreen}
-            options={hiddenHeader} />
-          <Stack.Screen
-            name="Login"
-            component={LoginScreen}
-            options={hiddenHeader} />
-          <Stack.Screen
-            name="ForgotPassword"
-            component={ForgotPasswordScreen}
-            options={hiddenHeader} />
-          <Stack.Screen
-            name="Register"
-            component={RegisterScreen}
-            options={hiddenHeader} />
-          <Stack.Screen
-            name="VerifyOtp"
-            component={VerifyOtpScreen}
-            options={hiddenHeader} />
-          <Stack.Screen
-            name="Dashboard"
-            component={DashboardScreen}
-            options={hiddenHeader} />
-          <Stack.Screen
-            name="CreateStorefront"
-            component={CreateStorefrontScreen}
-            options={newStorefrontOptions}
-          />
-
-          <Stack.Screen
-            name="ActivateQR"
-            component={ActivateQRScreen}
-            options={({ route }) => ({
-              title: route.params?.name || 'Activate QR',
-              headerBackTitle: 'Back',
-            })}
-          />
-          <Stack.Screen
-            name="QR"
-            component={QRScreen}
-            options={({ route }) => ({
-              title: `${route.params?.name} - QR`,
-              headerBackTitle: 'Back',
-            })}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
-  );
+    return (
+        <SafeAreaProvider>
+            <NavigationContainer>
+                <StatusBar style="dark" />
+                <Stack.Navigator
+                    initialRouteName="MerchantProfileBank"
+                    screenOptions={{
+                        headerStyle: { backgroundColor: '#ffffff' },
+                        headerTintColor: '#6C63FF',
+                        headerTitleStyle: { fontWeight: '700' },
+                        contentStyle: { backgroundColor: '#F3F4F6' },
+                    }}
+                >
+                    <Stack.Screen
+                        name="Splash"
+                        component={SplashScreen}
+                        options={hiddenHeader} />
+                    <Stack.Screen
+                        name="Login"
+                        component={LoginScreen}
+                        options={hiddenHeader} />
+                    <Stack.Screen
+                        name="ForgotPassword"
+                        component={ForgotPasswordScreen}
+                        options={hiddenHeader} />
+                    <Stack.Screen
+                        name="Register"
+                        component={RegisterScreen}
+                        options={hiddenHeader} />
+                    <Stack.Screen
+                        name="VerifyOtp"
+                        component={VerifyOtpScreen}
+                        options={hiddenHeader} />
+                    <Stack.Screen
+                        name="Dashboard"
+                        component={DashboardScreen}
+                        options={hiddenHeader} />
+                    <Stack.Screen
+                        name="MerchantProfileBank"
+                        component={MerchantProfileBankScreen}
+                        options={({ route }) => ({
+                            title: route.params?.name || 'Merchant Profile Bank',
+                            headerBackTitle: 'Back',
+                        })}
+                    />
+                    <Stack.Screen
+                        name="CreateStorefront"
+                        component={CreateStorefrontScreen}
+                        options={newStorefrontOptions}
+                    />
+                    <Stack.Screen
+                        name="Storefront"
+                        component={StorefrontScreen}
+                        options={({ route }) => ({
+                            title: route.params?.name || 'Storefront',
+                            headerBackTitle: 'Back',
+                        })}
+                    />
+                    <Stack.Screen
+                        name="ActivateQR"
+                        component={ActivateQRScreen}
+                        options={({ route }) => ({
+                            title: route.params?.name || 'Activate QR',
+                            headerBackTitle: 'Back',
+                        })}
+                    />
+                    <Stack.Screen
+                        name="QR"
+                        component={QRScreen}
+                        options={({ route }) => ({
+                            title: `${route.params?.name} - QR`,
+                            headerBackTitle: 'Back',
+                        })}
+                    />
+                    <Stack.Screen
+                        name="StoreChargesConfig"
+                        component={StoreChargesConfigScreen}
+                        options={({ route }) => ({
+                            title: route.params?.name || 'Configure Store',
+                            headerBackTitle: 'Back',
+                        })}
+                    />
+                    <Stack.Screen
+                        name="Checkout"
+                        component={CheckoutScreen}
+                        options={checkoutOptions}
+                    />
+                </Stack.Navigator>
+            </NavigationContainer>
+        </SafeAreaProvider>
+    );
 }

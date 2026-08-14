@@ -13,6 +13,8 @@ export type RootStackParamList = {
   Checkout: { slug: string; storefrontId: number; cart: any[]; table?: string };
   ActivateQR: { storefrontId: number; slug: string; name: string };
   QR: { slug: string; name: string };
+  MerchantProfileBank: { storefrontId?: number; name?: string; slug?: string } | undefined;
+  StoreChargesConfig: { storefrontId: number; name?: string; slug?: string };
 };
 
 export type NavigationProp<T extends keyof RootStackParamList> =
