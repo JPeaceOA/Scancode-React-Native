@@ -10,14 +10,18 @@ import {
   Alert,
 } from 'react-native';
 import { useFocusEffect, CommonActions } from '@react-navigation/native';
-import { getMyStorefronts, deleteToken, type StorefrontResponse } from '../api';
-import type { NavigationProp } from '../types';
+import { getMyStorefronts, deleteToken, type StorefrontResponse } from '../../api';
+import type { NavigationProp } from '../../types';
+import { useAppContext } from '../../context/AppContext';
+// === DEV TEST PROVISION — REMOVE THIS IMPORT AND <DevTestBanner /> WHEN FINISHED TESTING ===
+import DevTestBanner from '../../components/DevTestBanner';
 
 interface Props {
   navigation: NavigationProp<'Dashboard'>;
 }
 
 export default function DashboardScreen({ navigation }: Props) {
+  const { setAppState } = useAppContext();
   const [storefronts, setStorefronts] = useState<StorefrontResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -34,9 +38,7 @@ export default function DashboardScreen({ navigation }: Props) {
       const msg = err instanceof Error ? err.message : 'Failed to load storefronts.';
       if (msg.includes('401') || msg.toLowerCase().includes('unauthorized')) {
         await deleteToken();
-        navigation.dispatch(
-          CommonActions.reset({ index: 0, routes: [{ name: 'Login' }] }),
-        );
+        setAppState('logged_out');
         return;
       }
       setError(msg);
@@ -60,9 +62,7 @@ export default function DashboardScreen({ navigation }: Props) {
         style: 'destructive',
         onPress: async () => {
           await deleteToken();
-          navigation.dispatch(
-            CommonActions.reset({ index: 0, routes: [{ name: 'Login' }] }),
-          );
+          setAppState('logged_out');
         },
       },
     ]);
@@ -121,13 +121,55 @@ export default function DashboardScreen({ navigation }: Props) {
             </TouchableOpacity>
           )}
         </View>
+
+        {/* Operations row — always visible */}
+        <View style={[styles.cardActions, { marginTop: 8 }]}>
+          <TouchableOpacity
+            style={[styles.actionBtn, styles.opBtn]}
+            onPress={() =>
+              navigation.navigate('LiveOrdersManager', {
+                storefrontId: item.id,
+                slug: item.slug,
+                name: item.name,
+              })
+            }
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.actionBtnText, styles.opBtnText]}>🛍 Orders</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionBtn, styles.opBtn]}
+            onPress={() =>
+              navigation.navigate('ToolbarRequestsAdmin', {
+                storefrontId: item.id,
+                name: item.name,
+                slug: item.slug,
+              })
+            }
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.actionBtnText, styles.opBtnText]}>🔔 Activity</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionBtn, styles.opBtn]}
+            onPress={() =>
+              navigation.navigate('StoreChargesConfig', {
+                storefrontId: item.id,
+                name: item.name,
+                slug: item.slug,
+              })
+            }
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.actionBtnText, styles.opBtnText]}>⚙ Config</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>My Storefronts</Text>
         <View style={styles.headerRight}>
@@ -136,6 +178,9 @@ export default function DashboardScreen({ navigation }: Props) {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* DEV TEST PROVISION — REMOVE THIS LINE WHEN FINISHED TESTING */}
+      <DevTestBanner />
 
       {loading ? (
         <View style={styles.center}>
@@ -182,7 +227,6 @@ export default function DashboardScreen({ navigation }: Props) {
         />
       )}
 
-      {/* FAB */}
       <TouchableOpacity
         style={styles.fab}
         onPress={() => navigation.navigate('CreateStorefront')}
@@ -250,6 +294,8 @@ const styles = StyleSheet.create({
   actionBtnText: { color: '#6C63FF', fontWeight: '600', fontSize: 14 },
   activateBtn: { backgroundColor: '#6C63FF', borderColor: '#6C63FF' },
   activateBtnText: { color: '#ffffff' },
+  opBtn: { borderColor: '#6C63FF20', backgroundColor: '#F5F3FF' },
+  opBtnText: { color: '#4F46E5', fontSize: 12 },
   emptyTitle: { fontSize: 18, fontWeight: '700', color: '#374151', marginBottom: 6 },
   emptySubtitle: { fontSize: 14, color: '#9CA3AF', textAlign: 'center', marginBottom: 20 },
   emptyBtn: {

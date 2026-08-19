@@ -10,14 +10,16 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import { login, saveToken } from '../api';
-import type { NavigationProp } from '../types';
+import { login, saveToken } from '../../api';
+import type { NavigationProp } from '../../types';
+import { useAppContext } from '../../context/AppContext';
 
 interface Props {
   navigation: NavigationProp<'Login'>;
 }
 
 export default function LoginScreen({ navigation }: Props) {
+  const { setAppState } = useAppContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,7 +35,7 @@ export default function LoginScreen({ navigation }: Props) {
     try {
       const res = await login(email.trim(), password);
       await saveToken(res.token);
-      navigation.replace('Dashboard');
+      setAppState('admin');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Login failed. Try again.');
     } finally {

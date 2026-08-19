@@ -10,10 +10,10 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import { register } from '../api';
+import { register } from '../../api';
 // import { CommonActions } from '@react-navigation/native';
 // import { register, saveToken } from '../api';
-import type { NavigationProp } from '../types';
+import type { NavigationProp } from '../../types';
 
 interface Props {
   navigation: NavigationProp<'Register'>;

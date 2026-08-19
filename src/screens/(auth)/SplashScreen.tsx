@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
-import { getToken } from '../api';
-import type { NavigationProp } from '../types';
+import { getToken } from '../../api';
+import type { NavigationProp } from '../../types';
+import { useAppContext } from '../../context/AppContext';
 
 interface Props {
   navigation: NavigationProp<'Splash'>;
 }
 
 export default function SplashScreen({ navigation }: Props) {
+  const { setAppState } = useAppContext();
   // For testing
   //   navigation.replace('QR', { slug: "test", name: "QR Test" });
   // }, [navigation]); 
@@ -18,18 +20,18 @@ export default function SplashScreen({ navigation }: Props) {
         const token = await getToken();
         if (cancelled) return;
         if (token) {
-          navigation.replace('Dashboard');
+          setAppState('admin');
         } else {
-          navigation.replace('Login');
+          setAppState('logged_out');
         }
       } catch {
-        if (!cancelled) navigation.replace('Login');
+        if (!cancelled) setAppState('logged_out');
       }
     }
 
     checkAuth();
     return () => { cancelled = true; };
-  }, [navigation]);
+  }, [setAppState]);
 
   return (
     <View style={styles.container}>

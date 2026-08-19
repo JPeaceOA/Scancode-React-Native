@@ -15,6 +15,9 @@ export type RootStackParamList = {
   QR: { slug: string; name: string };
   MerchantProfileBank: { storefrontId?: number; name?: string; slug?: string } | undefined;
   StoreChargesConfig: { storefrontId: number; name?: string; slug?: string };
+  CameraQRScanner: { storefrontId?: number; slug?: string } | undefined;
+  LiveOrdersManager: { storefrontId?: number; slug?: string; name?: string } | undefined;
+  ToolbarRequestsAdmin: { storefrontId: number; name?: string; slug?: string };
 };
 
 export type NavigationProp<T extends keyof RootStackParamList> =

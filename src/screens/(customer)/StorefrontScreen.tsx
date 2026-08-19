@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import {
     StyleSheet,
@@ -16,23 +15,14 @@ import {
 import { Heart, Search, ShoppingCart } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import StorefrontToolbar, { type WeeklyEvents } from '../components/StorefrontToolbar';
+import StorefrontToolbar, { type WeeklyEvents } from '../../components/StorefrontToolbar';
 import {
     getProducts,
     getStoreConfig,
     getStorefrontBySlug,
     type ProductResponse,
     type StorefrontResponse,
-} from '../api';
-
-// import { api, ProductResponse, StorefrontResponse } from '../api';
-// import {
-//   getBusinessProfile,
-//   getStoreProducts,
-//   saveCheckoutOrder,
-//   StoreProduct,
-//   CustomCategory,
-// } from '../lib/storeData';
+} from '../../api';
 
 export interface Vendor {
     name: string;
@@ -46,7 +36,6 @@ export interface Vendor {
     bannerUrl?: string;
     estimatedDeliveryTime?: string;
 }
-
 
 export interface Product {
     id: string;
@@ -80,7 +69,6 @@ type RootStackParamList = {
 };
 
 type StorefrontScreenRouteProp = RouteProp<RootStackParamList, 'StorefrontScreen'>;
-
 
 const SAMPLE_CATEGORIES: Category[] = [
     { id: 'all', name: 'All', icon: '📋' },
@@ -133,7 +121,7 @@ function mapProduct(product: ProductResponse): Product {
 function getCategoryIcon(category: string) {
     return category.trim().slice(0, 1).toUpperCase() || '#';
 }
-// remove when ready
+
 const DUMMY_VENDOR: Vendor = {
     name: "ScanCode Lounge & Bistro",
     description: "Premium dining, craft drinks & instant table service.",
@@ -214,7 +202,6 @@ const DUMMY_PRODUCTS: Product[] = [
         isPopular: false,
     },
 ];
-// remove above when ready
 
 export default function StorefrontScreen() {
     const navigation = useNavigation<any>();
@@ -240,7 +227,7 @@ export default function StorefrontScreen() {
     const [deliveryFee, setDeliveryFee] = useState<number>(2000);
     const [isDeliveryEnabled, setIsDeliveryEnabled] = useState<boolean>(true);
 
-    const applyDummyData = () => { //remove when ready
+    const applyDummyData = () => {
         setStorefront({
             id: 999,
             userId: 1,
@@ -292,24 +279,25 @@ export default function StorefrontScreen() {
                     bannerUrl: storefrontData.bannerUrl ?? undefined,
                     estimatedDeliveryTime: customData.estimatedDeliveryTime ?? DUMMY_VENDOR.estimatedDeliveryTime,
                 });
-                setWeeklyEvents(customData.weeklyEvents && Object.keys(customData.weeklyEvents).length > 0 ? customData.weeklyEvents : DUMMY_WEEKLY_EVENTS);
+                // Use the storefront's own events; show empty schedule if none defined
+                setWeeklyEvents(customData.weeklyEvents ?? {});
 
                 const [productData, configData] = await Promise.all([
                     getProducts(storefrontData.id),
                     getStoreConfig(storefrontData.id).catch(() => null),
                 ]);
-                // remove above when ready
 
                 const mapped = productData.filter((product) => !product.isDelisted).map(mapProduct);
                 setProducts(mapped.length > 0 ? mapped : DUMMY_PRODUCTS);
 
                 if (configData) {
-                    setVatRate(configData.vatRate ?? 0.075);
+                    // Normalise: API may return vatRate as percent (7.5) or fraction (0.075)
+                    const rawVat = configData.vatRate ?? 7.5;
+                    setVatRate(rawVat > 1 ? rawVat / 100 : rawVat);
                     setDeliveryFee(configData.deliveryFee ?? 2000);
                     setIsDeliveryEnabled(true);
                 }
             } catch (err) {
-                // Fallback to rich demo dummy data if API fails or backend offline
                 applyDummyData();
             } finally {
                 setIsLoading(false);
@@ -350,10 +338,8 @@ export default function StorefrontScreen() {
                 if (item.id !== id) return item;
                 const newQty = item.qty + delta;
 
-                // If quantity drops to or below zero, clean remove it from the list
                 if (newQty <= 0) return null;
 
-                // Check structural stock boundaries if available on target products
                 const productRef = products.find(p => p.id === id);
                 if (productRef && newQty > productRef.stock) {
                     Alert.alert("Limit Reached", `Only ${productRef.stock} items available in stock.`);
@@ -364,6 +350,7 @@ export default function StorefrontScreen() {
             }).filter(Boolean) as CartItem[];
         });
     };
+
     const handleRemoveCartItem = (id: string) => {
         setCart((prev) => prev.filter((item) => item.id !== id));
     };
@@ -402,10 +389,6 @@ export default function StorefrontScreen() {
         setActiveCategory((current) => current === category ? null : category);
     };
 
-    const clearCategorySelection = () => {
-        setActiveCategory(null);
-    };
-
     const financialSummary = useMemo(() => {
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
         const appliedDelivery = isDeliveryEnabled && subtotal > 0 ? deliveryFee : 0;
@@ -420,10 +403,6 @@ export default function StorefrontScreen() {
             totalQty: cart.reduce((total, item) => total + item.qty, 0)
         };
     }, [cart, vatRate, deliveryFee, isDeliveryEnabled]);
-
-    const getCartCount = () => {
-        return cart.reduce((total, item) => total + item.qty, 0);
-    };
 
     if (isLoading) {
         return (
@@ -440,12 +419,9 @@ export default function StorefrontScreen() {
         );
     }
 
-    // FIX: Make sure the CartSummaryWidget is called inside your JSX return array, NOT declared as a function inside it.
     return (
         <SafeAreaView style={styles.container}>
-            {/* 1. Global Brand & Logo Centered Container */}
             <View style={styles.brandContainer}>
-                {/* Fallback circle using logoUrl if provided, else using a stylized circular container */}
                 <View style={styles.logoCircle}>
                     {vendor?.logoUrl ? (
                         <Image source={{ uri: vendor.logoUrl }} style={styles.logoImage} />
@@ -464,7 +440,6 @@ export default function StorefrontScreen() {
                 )}
             </View>
 
-            {/* 2. Search & Favorites Action Row Component */}
             <View style={styles.searchRowContainer}>
                 <View style={styles.searchBarWrapper}>
                     <Search size={16} color="#9CA3AF" style={{ marginRight: 6 }} />
@@ -511,10 +486,8 @@ export default function StorefrontScreen() {
                 </View>
             </View>
 
-            {/* 3. Section Title: Categories Grid Header */}
             <Text style={styles.sectionHeadingTitle}>Categories</Text>
 
-            {/* 4. Category Square Display Blocks Carousel Layout */}
             <View style={styles.categoryScrollWrapper}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryScrollPadding}>
                     {categories.length > 0 ? categories.map((cat) => {
@@ -542,20 +515,16 @@ export default function StorefrontScreen() {
                 </ScrollView>
             </View>
 
-            {/* 5. Dynamic Contextual List Heading */}
             <Text style={styles.sectionHeadingTitle}>
                 {activeCategory ? `${activeCategory} Products` : 'All Products'}
             </Text>
 
-            {/* Main Content Window Area */}
             <ScrollView
                 style={styles.menuList}
                 contentContainerStyle={styles.scrollPadding}
             >
-                {/* Menu Items Loop */}
                 {filteredProducts.map((item) => (
                     <View key={item.id} style={styles.productCard}>
-                        {/* Image Placeholder with fallback graphic support */}
                         <View style={styles.imgPlaceholder}>
                             {item.media[0] ? (
                                 <Image source={{ uri: item.media[0] }} style={styles.productImage} />
@@ -566,12 +535,6 @@ export default function StorefrontScreen() {
                         <View style={styles.productDetails}>
                             <View style={styles.cardHeaderRow}>
                                 <Text style={styles.productName}>{item.name}</Text>
-                                {/* Form Sync: Badges render if 'Mark as Featured/Popular' checkbox was checked
-                                {item.isPopular && (
-                                    <View style={styles.popularBadge}>
-                                        <Text style={styles.popularBadgeText}>⭐ Popular</Text>
-                                    </View>
-                                )} */}
                             </View>
                             <Text style={styles.productDesc} numberOfLines={2}>{item.description}</Text>
                             <View style={styles.cardRow}>
@@ -670,7 +633,6 @@ export default function StorefrontScreen() {
                 </Pressable>
             </Modal>
 
-            {/* Floating Checkout Summary Bar (Updated to use your exact mathematical engine values) */}
             {financialSummary.totalQty > 0 && (
                 <TouchableOpacity
                     style={styles.cartBar}
@@ -685,21 +647,18 @@ export default function StorefrontScreen() {
                     <Text style={styles.cartBarText}>Proceed • ₦{financialSummary.grandTotal.toLocaleString()}</Text>
                 </TouchableOpacity>
             )}
+
             <Modal
                 visible={isCartModalVisible}
                 animationType="slide"
                 transparent={true}
                 onRequestClose={() => setIsCartModalVisible(false)}
             >
-                {/* Click-away Overlay Backdrop */}
                 <Pressable
                     style={styles.modalBackdrop}
-                    onPress={() => setIsCartModalVisible(false)} // 👈 MINIMISES POPUP ON OUTSIDE CLICK
+                    onPress={() => setIsCartModalVisible(false)}
                 >
-                    {/* Modal Sheet Content Window Panel */}
                     <Pressable style={styles.modalContentSheet} onPress={(e) => e.stopPropagation()}>
-
-                        {/* Top decorative drag accent layout handle */}
                         <View style={styles.dragIndicator} />
 
                         <View style={styles.modalHeaderRow}>
@@ -709,7 +668,6 @@ export default function StorefrontScreen() {
                             </TouchableOpacity>
                         </View>
 
-                        {/* Scrollable Itemised Cart Item Records List */}
                         <ScrollView style={styles.cartItemsScroll} showsVerticalScrollIndicator={false}>
                             {cart.map((item) => (
                                 <View key={item.id} style={styles.cartItemRow}>
@@ -718,9 +676,7 @@ export default function StorefrontScreen() {
                                         <Text style={styles.cartItemPrice}>₦{(item.price * item.qty).toLocaleString()}</Text>
                                     </View>
 
-                                    {/* Interactive Counter Stepper Controllers */}
                                     <View style={styles.quantityControlWrapper}>
-                                        {/* Decrease Button */}
                                         <TouchableOpacity
                                             style={styles.qtyActionButton}
                                             onPress={() => handleUpdateCartQty(item.id, -1)}
@@ -730,7 +686,6 @@ export default function StorefrontScreen() {
 
                                         <Text style={styles.qtyDisplayCountText}>{item.qty}</Text>
 
-                                        {/* Increase Button */}
                                         <TouchableOpacity
                                             style={styles.qtyActionButton}
                                             onPress={() => handleUpdateCartQty(item.id, 1)}
@@ -738,7 +693,6 @@ export default function StorefrontScreen() {
                                             <Text style={styles.qtyActionBtnText}>+</Text>
                                         </TouchableOpacity>
 
-                                        {/* Delete Trash Icon Button */}
                                         <TouchableOpacity
                                             style={styles.qtyActionButton}
                                             onPress={() => handleRemoveCartItem(item.id)}
@@ -749,7 +703,6 @@ export default function StorefrontScreen() {
                                 </View>
                             ))}
 
-                            {/* Bill Details Summary Breakdowns Card */}
                             <View style={styles.popupBillingBox}>
                                 <View style={styles.summaryRow}>
                                     <Text style={styles.summaryLabel}>Subtotal</Text>
@@ -777,39 +730,31 @@ export default function StorefrontScreen() {
                             </View>
                         </ScrollView>
 
-                        {/* Master Checkout Trigger Button Action */}
                         <TouchableOpacity
                             style={[styles.modalCheckoutBtn, cart.length === 0 && styles.modalCheckoutBtnDisabled]}
                             disabled={cart.length === 0}
                             onPress={() => {
-                                setIsCartModalVisible(false); // Clean minimize toggle
+                                setIsCartModalVisible(false);
                                 navigation.navigate('Checkout', { slug, storefrontId: storefront?.id || 0, table: scannedTableCode, cart });
                             }}
                         >
                             <Text style={styles.modalCheckoutBtnText}>Confirm & Proceed to Checkout</Text>
                         </TouchableOpacity>
-
                     </Pressable>
                 </Pressable>
             </Modal>
 
-            {/* Bottom Toolbar Popup Component (Assistance, Requests, Tips, Feedback, Events) */}
             <StorefrontToolbar
                 storefrontId={storefront?.id}
                 tableCode={scannedTableCode}
                 vendor={vendor}
                 weeklyEvents={weeklyEvents}
             />
-
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    // container: {
-    //     flex: 1,
-    //     backgroundColor: '#FAFAFA',
-    // },
     skeleton: {
         flex: 1,
         justifyContent: 'center',
@@ -959,7 +904,6 @@ const styles = StyleSheet.create({
         paddingVertical: 6,
         paddingHorizontal: 14,
         borderRadius: 50,
-
     },
     addBtnText: {
         color: '#FFFFFF',
@@ -989,7 +933,6 @@ const styles = StyleSheet.create({
     favoriteCardButtonTextActive: {
         color: '#EF4444',
     },
-    // Bill Details Summary Card Layouts
     summaryContainer: {
         backgroundColor: '#FFFFFF',
         borderRadius: 12,
@@ -1037,7 +980,6 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         color: '#6C63FF',
     },
-    // Floating Basket Summary Bar Styles
     cartBar: {
         position: 'absolute',
         bottom: 24,
@@ -1078,9 +1020,8 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF', // Clean flat white canvas matching the screenshot
+        backgroundColor: '#FFFFFF',
     },
-    // Top Brand Section Layouts
     brandContainer: {
         alignItems: 'center',
         paddingTop: 16,
@@ -1119,7 +1060,6 @@ const styles = StyleSheet.create({
         color: '#9CA3AF',
         marginTop: 2,
     },
-    // Search Action Layout Mechanics
     searchRowContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -1133,7 +1073,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F9FAFB',
         borderWidth: 1,
         borderColor: '#E5E7EB',
-        borderRadius: 25, // Perfectly pill-shaped outline
+        borderRadius: 25,
         paddingLeft: 16,
         paddingRight: 6,
         height: 46,
@@ -1147,7 +1087,7 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 14,
         color: '#1F2937',
-        paddingVertical: 0, // Strips default native padding boundaries
+        paddingVertical: 0,
     },
     headerIconButton: {
         width: 34,
@@ -1181,7 +1121,6 @@ const styles = StyleSheet.create({
         fontSize: 10,
         fontWeight: '800',
     },
-    // Category Elements Styles Structural Arrays
     sectionHeadingTitle: {
         fontSize: 16,
         fontWeight: '700',
@@ -1208,7 +1147,7 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     activeSquareCard: {
-        borderColor: '#6C63FF', // Highlighting state outline adjustments
+        borderColor: '#6C63FF',
         backgroundColor: '#F5F3FF',
     },
     squareIconBox: {
@@ -1233,7 +1172,6 @@ const styles = StyleSheet.create({
         color: '#6C63FF',
         fontWeight: '600',
     },
-    // Core Scrolling Grid Paddings Override
     scrollPadding: {
         paddingHorizontal: 16,
         paddingTop: 4,
@@ -1272,7 +1210,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop: 10,
         paddingBottom: 40,
-        maxHeight: '80%', // Accommodates the scrollable item list safely
+        maxHeight: '80%',
     },
     dragIndicator: {
         width: 40,
@@ -1367,10 +1305,6 @@ const styles = StyleSheet.create({
         minWidth: 16,
         textAlign: 'center',
     },
-    trashPurgeButton: {
-        marginLeft: 12,
-        padding: 6,
-    },
     trashPurgeBtnText: {
         fontSize: 16,
     },
@@ -1399,4 +1333,3 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 });
-

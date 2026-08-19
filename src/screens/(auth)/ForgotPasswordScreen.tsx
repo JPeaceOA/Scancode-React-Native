@@ -10,8 +10,8 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import { forgotPassword } from '../api';
-import type { NavigationProp } from '../types';
+import { forgotPassword } from '../../api';
+import type { NavigationProp } from '../../types';
 
 interface Props {
   navigation: NavigationProp<'ForgotPassword'>;

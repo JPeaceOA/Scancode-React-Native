@@ -12,9 +12,9 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { createOrder, getStoreConfig, getStorefrontBySlug, type OrderResponse, type StorefrontResponse } from '../api';
+import { createOrder, getStoreConfig, getStorefrontBySlug, type OrderResponse, type StorefrontResponse } from '../../api';
 import type { CartItem } from './StorefrontScreen';
-import type { NavigationProp, RouteProps } from '../types';
+import type { NavigationProp, RouteProps } from '../../types';
 
 interface Props {
   navigation: NavigationProp<'Checkout'>;
@@ -39,7 +39,6 @@ export default function CheckoutScreen({ navigation, route }: Props) {
   const [isLoadingConfig, setIsLoadingConfig] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [placedOrder, setPlacedOrder] = useState<OrderResponse | null>(null);
-  const [copiedAccount, setCopiedAccount] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -148,7 +147,6 @@ export default function CheckoutScreen({ navigation, route }: Props) {
       >
         <ScrollView contentContainerStyle={styles.scrollPadding}>
           {placedOrder ? (
-            /* Order Placed Success & Payment Details View */
             <View style={styles.successWrapper}>
               <View style={styles.successIconBadge}>
                 <Text style={styles.successIconText}>✓</Text>
@@ -158,7 +156,6 @@ export default function CheckoutScreen({ navigation, route }: Props) {
                 Order #{placedOrder.id} is registered as <Text style={styles.statusBadge}>PENDING PAYMENT</Text>
               </Text>
 
-              {/* Amount Breakdown Card */}
               <View style={styles.card}>
                 <Text style={styles.cardTitle}>Payment Due</Text>
                 <Text style={styles.grandTotalText}>₦{placedOrder.total.toLocaleString()}</Text>
@@ -185,7 +182,6 @@ export default function CheckoutScreen({ navigation, route }: Props) {
                 </View>
               </View>
 
-              {/* Action Buttons */}
               <TouchableOpacity
                 style={styles.primaryBtn}
                 onPress={() => navigation.navigate('Storefront', { slug })}
@@ -194,9 +190,7 @@ export default function CheckoutScreen({ navigation, route }: Props) {
               </TouchableOpacity>
             </View>
           ) : (
-            /* Checkout Form View */
             <View>
-              {/* Header summary */}
               <Text style={styles.sectionTitle}>Order Summary</Text>
 
               <View style={styles.card}>
@@ -235,7 +229,6 @@ export default function CheckoutScreen({ navigation, route }: Props) {
                 </View>
               </View>
 
-              {/* Customer Info Form */}
               <Text style={styles.sectionTitle}>Customer Details</Text>
 
               <View style={styles.card}>
@@ -283,7 +276,6 @@ export default function CheckoutScreen({ navigation, route }: Props) {
                 />
               </View>
 
-              {/* Place Order Trigger */}
               <TouchableOpacity
                 style={[styles.primaryBtn, isSubmitting && styles.btnDisabled]}
                 onPress={handlePlaceOrder}
@@ -305,187 +297,37 @@ export default function CheckoutScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  scrollPadding: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 10,
-    marginTop: 8,
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  itemRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  itemName: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#1F2937',
-  },
-  itemSub: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginTop: 2,
-  },
-  itemTotal: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#1F2937',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#F3F4F6',
-    marginVertical: 10,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 4,
-  },
-  summaryLabel: {
-    fontSize: 14,
-    color: '#4B5563',
-  },
-  summaryValue: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1F2937',
-  },
-  totalLabel: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#111827',
-  },
-  totalValue: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#6C63FF',
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 4,
-    marginTop: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    fontSize: 14,
-    color: '#111827',
-    backgroundColor: '#F9FAFB',
-  },
-  primaryBtn: {
-    backgroundColor: '#6C63FF',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  btnDisabled: {
-    opacity: 0.6,
-  },
-  primaryBtnText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  /* Order Placed Success styles */
-  successWrapper: {
-    alignItems: 'center',
-    paddingVertical: 24,
-  },
-  successIconBadge: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#D1FAE5',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  successIconText: {
-    fontSize: 32,
-    color: '#059669',
-    fontWeight: 'bold',
-  },
-  successTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#111827',
-    textAlign: 'center',
-    marginBottom: 6,
-  },
-  successSub: {
-    fontSize: 14,
-    color: '#4B5563',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  statusBadge: {
-    fontWeight: '700',
-    color: '#D97706',
-  },
-  cardTitle: {
-    fontSize: 14,
-    color: '#6B7280',
-    textAlign: 'center',
-  },
-  grandTotalText: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#6C63FF',
-    textAlign: 'center',
-    marginTop: 4,
-  },
-  bankInstruction: {
-    fontSize: 13,
-    color: '#4B5563',
-    marginBottom: 12,
-    lineHeight: 18,
-  },
-  bankBox: {
-    backgroundColor: '#F3F4F6',
-    borderRadius: 10,
-    padding: 12,
-    gap: 6,
-  },
-  bankRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  bankLabel: {
-    fontSize: 13,
-    color: '#6B7280',
-  },
-  bankValue: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#1F2937',
-  },
-  bankValueBold: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#111827',
-  },
+  container: { flex: 1, backgroundColor: '#F9FAFB' },
+  scrollPadding: { padding: 16, paddingBottom: 40 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#111827', marginBottom: 10, marginTop: 8 },
+  card: { backgroundColor: '#FFFFFF', borderRadius: 14, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#E5E7EB' },
+  itemRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8 },
+  itemName: { fontSize: 15, fontWeight: '600', color: '#1F2937' },
+  itemSub: { fontSize: 13, color: '#6B7280', marginTop: 2 },
+  itemTotal: { fontSize: 14, fontWeight: '700', color: '#1F2937' },
+  divider: { height: 1, backgroundColor: '#F3F4F6', marginVertical: 10 },
+  summaryRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4 },
+  summaryLabel: { fontSize: 14, color: '#4B5563' },
+  summaryValue: { fontSize: 14, fontWeight: '500', color: '#1F2937' },
+  totalLabel: { fontSize: 16, fontWeight: '700', color: '#111827' },
+  totalValue: { fontSize: 18, fontWeight: '800', color: '#6C63FF' },
+  label: { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 4, marginTop: 8 },
+  input: { borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#111827', backgroundColor: '#F9FAFB' },
+  primaryBtn: { backgroundColor: '#6C63FF', borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginTop: 8 },
+  btnDisabled: { opacity: 0.6 },
+  primaryBtnText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
+  successWrapper: { alignItems: 'center', paddingVertical: 24 },
+  successIconBadge: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#D1FAE5', justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
+  successIconText: { fontSize: 32, color: '#059669', fontWeight: 'bold' },
+  successTitle: { fontSize: 22, fontWeight: '800', color: '#111827', textAlign: 'center', marginBottom: 6 },
+  successSub: { fontSize: 14, color: '#4B5563', textAlign: 'center', marginBottom: 24 },
+  statusBadge: { fontWeight: '700', color: '#D97706' },
+  cardTitle: { fontSize: 14, color: '#6B7280', textAlign: 'center' },
+  grandTotalText: { fontSize: 28, fontWeight: '800', color: '#6C63FF', textAlign: 'center', marginTop: 4 },
+  bankInstruction: { fontSize: 13, color: '#4B5563', marginBottom: 12, lineHeight: 18 },
+  bankBox: { backgroundColor: '#F3F4F6', borderRadius: 10, padding: 12, gap: 6 },
+  bankRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  bankLabel: { fontSize: 13, color: '#6B7280' },
+  bankValue: { fontSize: 13, fontWeight: '600', color: '#1F2937' },
+  bankValueBold: { fontSize: 14, fontWeight: '800', color: '#111827' },
 });

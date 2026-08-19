@@ -11,8 +11,8 @@ import {
   ScrollView,
 } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
-import { verifyOtp, resendOtp } from '../api';
-import type { NavigationProp, RouteProps } from '../types';
+import { verifyOtp, resendOtp } from '../../api';
+import type { NavigationProp, RouteProps } from '../../types';
 
 interface Props {
   navigation: NavigationProp<'VerifyOtp'>;

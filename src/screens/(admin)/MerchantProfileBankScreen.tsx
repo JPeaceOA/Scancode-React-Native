@@ -12,8 +12,8 @@ import {
   Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import type { NavigationProp } from '../types';
-import { getBusinessProfileData, saveBusinessProfileData } from '../api';
+import type { NavigationProp } from '../../types';
+import { getBusinessProfileData, saveBusinessProfileData } from '../../api';
 
 export default function MerchantProfileBankScreen() {
   const navigation = useNavigation<NavigationProp<'MerchantProfileBank'>>();
@@ -86,7 +86,6 @@ export default function MerchantProfileBankScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-        {/* Info Banner */}
         <View style={styles.infoBanner}>
           <Text style={styles.infoIcon}>🏦</Text>
           <View style={styles.infoTextContainer}>
@@ -115,9 +114,7 @@ export default function MerchantProfileBankScreen() {
           </View>
         )}
 
-        {/* Form Container */}
         <View style={styles.card}>
-          {/* Business Name */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Business Name</Text>
             <TextInput
@@ -129,7 +126,6 @@ export default function MerchantProfileBankScreen() {
             />
           </View>
 
-          {/* Bank Name */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Bank Name *</Text>
             <TextInput
@@ -141,7 +137,6 @@ export default function MerchantProfileBankScreen() {
             />
           </View>
 
-          {/* Account Name */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Account Name *</Text>
             <TextInput
@@ -153,7 +148,6 @@ export default function MerchantProfileBankScreen() {
             />
           </View>
 
-          {/* Account Number */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Account Number *</Text>
             <TextInput
@@ -168,7 +162,6 @@ export default function MerchantProfileBankScreen() {
           </View>
         </View>
 
-        {/* Save Button */}
         <TouchableOpacity
           style={[styles.saveBtn, isSaving && styles.saveBtnDisabled]}
           onPress={handleSave}
@@ -187,126 +180,26 @@ export default function MerchantProfileBankScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F9FAFB',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#4B5563',
-  },
-  scrollContent: {
-    padding: 20,
-  },
-  infoBanner: {
-    flexDirection: 'row',
-    backgroundColor: '#ECFDF5',
-    borderColor: '#A7F3D0',
-    borderWidth: 1,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    alignItems: 'flex-start',
-  },
-  infoIcon: {
-    fontSize: 24,
-    marginRight: 12,
-  },
-  infoTextContainer: {
-    flex: 1,
-  },
-  infoTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#065F46',
-    marginBottom: 2,
-  },
-  infoSub: {
-    fontSize: 12,
-    color: '#047857',
-    lineHeight: 18,
-  },
-  feedbackBox: {
-    padding: 14,
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  feedbackSuccess: {
-    backgroundColor: '#DEF7EC',
-    borderColor: '#BCF0DA',
-    borderWidth: 1,
-  },
-  feedbackError: {
-    backgroundColor: '#FDE8E8',
-    borderColor: '#FBD5D5',
-    borderWidth: 1,
-  },
-  feedbackText: {
-    fontSize: 13,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  feedbackSuccessText: {
-    color: '#03543F',
-  },
-  feedbackErrorText: {
-    color: '#9B1C1C',
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  fieldGroup: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 6,
-  },
-  input: {
-    backgroundColor: '#F9FAFB',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 14,
-    color: '#111827',
-  },
-  saveBtn: {
-    backgroundColor: '#126B33',
-    borderRadius: 16,
-    paddingVertical: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#126B33',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  saveBtnDisabled: {
-    backgroundColor: '#9CA3AF',
-  },
-  saveBtnText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '700',
-  },
+  container: { flex: 1, backgroundColor: '#F9FAFB' },
+  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F9FAFB' },
+  loadingText: { marginTop: 12, fontSize: 14, color: '#4B5563' },
+  scrollContent: { padding: 20 },
+  infoBanner: { flexDirection: 'row', backgroundColor: '#ECFDF5', borderColor: '#A7F3D0', borderWidth: 1, borderRadius: 16, padding: 16, marginBottom: 16, alignItems: 'flex-start' },
+  infoIcon: { fontSize: 24, marginRight: 12 },
+  infoTextContainer: { flex: 1 },
+  infoTitle: { fontSize: 14, fontWeight: '700', color: '#065F46', marginBottom: 2 },
+  infoSub: { fontSize: 12, color: '#047857', lineHeight: 18 },
+  feedbackBox: { padding: 14, borderRadius: 12, marginBottom: 16 },
+  feedbackSuccess: { backgroundColor: '#DEF7EC', borderColor: '#BCF0DA', borderWidth: 1 },
+  feedbackError: { backgroundColor: '#FDE8E8', borderColor: '#FBD5D5', borderWidth: 1 },
+  feedbackText: { fontSize: 13, fontWeight: '600', textAlign: 'center' },
+  feedbackSuccessText: { color: '#03543F' },
+  feedbackErrorText: { color: '#9B1C1C' },
+  card: { backgroundColor: '#FFFFFF', borderRadius: 20, padding: 20, marginBottom: 20, elevation: 2 },
+  fieldGroup: { marginBottom: 16 },
+  label: { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 6 },
+  input: { backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14, color: '#111827' },
+  saveBtn: { backgroundColor: '#6C63FF', borderRadius: 16, paddingVertical: 16, alignItems: 'center', justifyContent: 'center' },
+  saveBtnDisabled: { backgroundColor: '#9CA3AF' },
+  saveBtnText: { color: '#FFFFFF', fontSize: 15, fontWeight: '700' },
 });
